@@ -95,7 +95,7 @@
         <section class="view" data-view="dashboard">
           <div class="hero glass">
             <span class="hero-kicker">Vision RPS 2.0</span>
-            <h2>Welcome back, player.</h2>
+            <h2>Welcome back, <span id="dash-welcome-name">player</span>.</h2>
             <p>Shape a gesture, lock it in, and beat the machine — all on your device.</p>
             <button id="cta-play" class="btn primary">▶ Go to Play</button>
           </div>
@@ -230,23 +230,121 @@
 
         <!-- ---------- PROFILE ---------- -->
         <section class="view" data-view="profile">
-          <section class="panel glass fill">
-            <div class="profile-card">
-              <div class="avatar">
-                <svg class="avatar-svg" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <section class="panel glass fill profile-container">
+            <!-- Toast Feedback -->
+            <div id="profile-saved-toast" class="profile-toast hidden">
+              <span>✓ Profile saved successfully!</span>
+            </div>
+
+            <!-- Profile Display View -->
+            <div id="profile-display-card" class="profile-card-layout">
+              <div class="profile-hero-card">
+                <div class="profile-avatar-wrap">
+                  <div class="avatar" id="profile-avatar-display">
+                    <img src="/icon.jpg" alt="Mascot Avatar" class="profile-avatar-img" />
+                  </div>
+                </div>
+                <div class="profile-meta">
+                  <div class="profile-name-row">
+                    <h2 id="profile-name">Vision Master</h2>
+                    <span id="profile-title-display" class="chip profile-title-chip">Novice Duelist</span>
+                  </div>
+                  <p class="profile-bio" id="profile-bio-display">Mastering Rock, Paper, Scissors with live computer vision gestures.</p>
+                  <p class="hint" id="profile-level">Level 1 · Novice Duelist (0 XP)</p>
+                </div>
+                <button id="btn-edit-profile" class="btn profile-edit-btn" type="button" aria-label="Edit Profile">
+                  <svg class="nav-svg" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path><path d="m15 5 4 4"></path></svg>
+                  <span>Edit Profile</span>
+                </button>
               </div>
-              <div class="profile-meta">
-                <h2 id="profile-name">Guest Player</h2>
-                <p class="hint" id="profile-level">Level 1 · 0 XP</p>
+
+              <!-- XP Progress Bar -->
+              <div class="xp-card">
+                <div class="xp-header">
+                  <span class="xp-title">Level Progression</span>
+                  <span class="xp-status" id="profile-xp-text">0% to Level 2</span>
+                </div>
+                <div class="xp-bar-track">
+                  <div class="xp-bar-fill" id="profile-xp-fill" style="width: 0%;"></div>
+                </div>
+              </div>
+
+              <!-- Career Statistics -->
+              <div class="career-stats-card">
+                <h3>Career Telemetry</h3>
+                <div class="stat-rows">
+                  <div class="stat-row"><span>Rounds played</span><strong id="profile-rounds">0</strong></div>
+                  <div class="stat-row"><span>Matches played</span><strong id="profile-matches">0</strong></div>
+                  <div class="stat-row"><span>Win Rate</span><strong id="profile-winrate">0%</strong></div>
+                  <div class="stat-row"><span>Best Win Streak</span><strong id="profile-streak">0</strong></div>
+                </div>
               </div>
             </div>
-            <div class="stat-rows">
-              <div class="stat-row"><span>Matches played</span><strong id="profile-matches">0</strong></div>
-              <div class="stat-row"><span>Rounds played</span><strong id="profile-rounds">0</strong></div>
-              <div class="stat-row"><span>Best streak</span><strong id="profile-streak">0</strong></div>
-              <div class="stat-row"><span>Favorite gesture</span><strong id="profile-gesture">—</strong></div>
+
+            <!-- Profile Edit Form (Hidden by default) -->
+            <div id="profile-edit-form" class="profile-edit-form hidden">
+              <div class="edit-form-header">
+                <h3>Customize Profile</h3>
+                <p class="hint">Your profile details are stored locally on your device.</p>
+              </div>
+
+              <!-- Avatar Selection -->
+              <div class="form-group">
+                <label class="form-label">Choose Avatar</label>
+                <div class="avatar-choices" id="avatar-picker">
+                  <button type="button" class="avatar-choice-btn active" data-avatar-choice="mascot" title="Clay Mascot">
+                    <img src="/icon.jpg" alt="Mascot" class="choice-img" />
+                  </button>
+                  <button type="button" class="avatar-choice-btn" data-avatar-choice="rock" title="Rock Titan">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11.5V9a2 2 0 0 0-2-2a2 2 0 0 0-2 2v1.4"></path><path d="M14 10V8a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"></path><path d="M10 9.9V9a2 2 0 0 0-2-2a2 2 0 0 0-2 2v5"></path><path d="M6 14a2 2 0 0 0-2-2a2 2 0 0 0-2 2"></path><path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-4a8 8 0 0 1-8-8 2 2 0 1 1 4 0"></path></svg>
+                  </button>
+                  <button type="button" class="avatar-choice-btn" data-avatar-choice="paper" title="Paper Strategist">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"></path><path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"></path><path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"></path><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"></path></svg>
+                  </button>
+                  <button type="button" class="avatar-choice-btn" data-avatar-choice="scissors" title="Scissors Blade">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"></circle><path d="M8.12 8.12 12 12"></path><path d="M20 4 8.12 15.88"></path><circle cx="6" cy="18" r="3"></circle><path d="M14.8 14.8 20 20"></path></svg>
+                  </button>
+                  <button type="button" class="avatar-choice-btn" data-avatar-choice="trophy" title="Champion">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>
+                  </button>
+                  <button type="button" class="avatar-choice-btn" data-avatar-choice="star" title="Grandmaster">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Name Input -->
+              <div class="form-group">
+                <label for="input-profile-name" class="form-label">Player Name</label>
+                <input type="text" id="input-profile-name" class="input" placeholder="e.g. Vision Master" maxlength="28" />
+              </div>
+
+              <!-- Title Select -->
+              <div class="form-group">
+                <label for="select-profile-title" class="form-label">Honorary Title</label>
+                <select id="select-profile-title" class="select">
+                  <option value="Novice Duelist">Novice Duelist</option>
+                  <option value="Rock Titan">Rock Titan</option>
+                  <option value="Origami Strategist">Origami Strategist</option>
+                  <option value="Scissors Sensei">Scissors Sensei</option>
+                  <option value="Gesture Grandmaster">Gesture Grandmaster</option>
+                  <option value="Neural Visionary">Neural Visionary</option>
+                </select>
+              </div>
+
+              <!-- Bio Input -->
+              <div class="form-group">
+                <label for="input-profile-bio" class="form-label">Bio / Motto</label>
+                <textarea id="input-profile-bio" class="input textarea" rows="2" placeholder="Your battle motto or player bio..." maxlength="120"></textarea>
+              </div>
+
+              <!-- Form Buttons -->
+              <div class="form-actions">
+                <button type="button" id="btn-save-profile" class="btn primary">Save Changes</button>
+                <button type="button" id="btn-cancel-profile" class="btn ghost">Cancel</button>
+                <button type="button" id="btn-reset-profile" class="btn ghost text-muted">Reset</button>
+              </div>
             </div>
-            <p class="hint">Profiles and persistence arrive with the match-history upgrade (Phase 3).</p>
           </section>
         </section>
 

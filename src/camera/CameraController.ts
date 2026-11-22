@@ -30,6 +30,56 @@ export interface CameraControllerOptions {
   onStatus?: (status: CameraStatus) => void;
 }
 
+export function formatCameraError(err: unknown): { name: string; message: string } {
+  if (!err) return { name: 'UnknownError', message: 'Unknown camera error.' };
+  if (err instanceof DOMException || err instanceof Error) {
+    const name = err.name || 'CameraError';
+    if (/NotAllowedError|PermissionDeniedError/i.test(name)) {
+      return {
+        name,
+        message: 'Camera permission denied. Please allow camera access in browser/app settings.',
+      };
+    }
+    if (/NotFoundError|DevicesNotFoundError/i.test(name)) {
+      return {
+        name,
+        message: 'No camera found. Please connect or enable a camera device.',
+      };
+    }
+    if (/NotReadableError|TrackStartError/i.test(name)) {
+      return {
+        name,
+        message: 'Camera is busy or in use by another app. Please close other camera apps.',
+      };
+    }
+    if (/OverconstrainedError/i.test(name)) {
+      return {
+        name,
+        message: 'Camera constraints not supported by this device.',
+      };
+    }
+    if (/SecurityError/i.test(name)) {
+      return {
+        name,
+        message: 'Camera requires a secure context (HTTPS or localhost).',
+      };
+    }
+    const msg = err.message && !err.message.includes('[object') ? err.message : name;
+    return { name, message: msg };
+  }
+  if (typeof err === 'object') {
+    const rec = err as Record<string, unknown>;
+    const name = typeof rec.name === 'string' ? rec.name : 'CameraError';
+    const msg = typeof rec.message === 'string' && rec.message && !rec.message.includes('[object') ? rec.message : name;
+    return { name, message: msg };
+  }
+  const str = String(err);
+  return {
+    name: 'CameraError',
+    message: str.includes('[object') ? 'Camera access failed (Permission or device unavailable).' : str,
+  };
+}
+
 export class CameraController {
   readonly video: HTMLVideoElement | null;
   readonly onStatus: (status: CameraStatus) => void;
@@ -72,35 +122,59 @@ export class CameraController {
     if (this.running && this.stream) return this.stream;
     this._emit('requesting');
 
-    const id = this._pickDeviceId();
-    const constraints: MediaStreamConstraints = {
-      video: {
-        width: { ideal: 1280 },
-        height: { ideal: 720 },
-        frameRate: { ideal: 30 },
-        facingMode: id ? undefined : 'user',
-        deviceId: id ? { exact: id } : undefined,
-      },
-      audio: false,
-    };
+    if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
+      const errInfo = {
+        name: 'NotSupportedError',
+        message: 'Camera API not available. Ensure you are on HTTPS or localhost.',
+      };
+      this._emit('error', { code: errInfo.name, message: errInfo.message });
+      throw new Error(errInfo.message);
+    }
 
-    try {
-      this.stream = await navigator.mediaDevices.getUserMedia(constraints);
-    } catch (err) {
-      if (/overconstrained|NotFoundError|NotReadableError/i.test((err as DOMException)?.name ?? '')) {
-        try {
-          this.stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: 'user' },
-            audio: false,
-          });
-        } catch (err2) {
-          this._emit('error', { code: (err2 as DOMException)?.name || 'UnknownError', message: (err2 as DOMException)?.message });
-          throw err2;
+    const id = this._pickDeviceId();
+    const candidateConstraints: MediaStreamConstraints[] = [
+      // 1. High quality with preferred camera & facing mode
+      {
+        video: {
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          frameRate: { ideal: 30 },
+          facingMode: id ? undefined : 'user',
+          deviceId: id ? { exact: id } : undefined,
+        },
+        audio: false,
+      },
+      // 2. Fallback: User front camera without exact device ID
+      {
+        video: { facingMode: 'user' },
+        audio: false,
+      },
+      // 3. Fallback: Any available video capture stream
+      {
+        video: true,
+        audio: false,
+      },
+    ];
+
+    let lastError: unknown = null;
+    for (const constraints of candidateConstraints) {
+      try {
+        this.stream = await navigator.mediaDevices.getUserMedia(constraints);
+        break;
+      } catch (err) {
+        lastError = err;
+        const name = (err as DOMException)?.name || '';
+        // If permission was denied, do not retry other constraints
+        if (/NotAllowedError|PermissionDeniedError|SecurityError/i.test(name)) {
+          break;
         }
-      } else {
-        this._emit('error', { code: (err as DOMException)?.name || 'UnknownError', message: (err as DOMException)?.message });
-        throw err;
       }
+    }
+
+    if (!this.stream) {
+      const formatted = formatCameraError(lastError);
+      this._emit('error', { code: formatted.name, message: formatted.message });
+      throw new Error(formatted.message);
     }
 
     this._attachStream(this.stream);

@@ -3,7 +3,7 @@
  * Bootstrap is handled by src/main.ts.
  */
 
-import { CameraController } from '../camera/CameraController';
+import { CameraController, formatCameraError } from '../camera/CameraController';
 import { FrameProcessor } from '../camera/FrameProcessor';
 import { VisionEngine } from '../vision/VisionEngine';
 import { classify as classifyGesture, type Classification } from '../vision/GestureClassifier';
@@ -17,6 +17,7 @@ import { Settings, type SettingsKey, type SettingsValues } from '../ui/Settings'
 import { Shell, type ViewId } from '../ui/Shell';
 import { StatisticsView } from '../ui/StatisticsView';
 import { AchievementsView } from '../ui/AchievementsView';
+import { ProfileView } from '../ui/ProfileView';
 
 const $ = (id: string): HTMLElement => document.getElementById(id) as HTMLElement;
 
@@ -37,6 +38,7 @@ export class VisionRPSApp {
   private dashboard!: Dashboard;
   private statisticsView!: StatisticsView;
   private achievementsView!: AchievementsView;
+  private profileView!: ProfileView;
 
   init(): void {
     this.settings = new Settings({ storage: this.storage, onChange: (k, v) => this._onSetting(k, v) });
@@ -69,10 +71,18 @@ export class VisionRPSApp {
     });
     this.statisticsView = new StatisticsView();
     this.achievementsView = new AchievementsView();
+    this.profileView = new ProfileView({
+      storage: this.storage,
+      onProfileUpdate: (p) => {
+        const welcome = $('dash-welcome-name');
+        if (welcome) welcome.textContent = p.name;
+      },
+    });
 
     this._bind();
     this._refreshStats();
     void this.achievementsView.load(this.scores.snapshot());
+    this.profileView.render(this.scores.snapshot());
     this.settings.applyToDom({
       confidence: $('conf-confidence') as HTMLInputElement,
       confidenceOut: $('conf-confidence-out'),
@@ -123,7 +133,9 @@ export class VisionRPSApp {
       await this.camera.start();
       await this.vision.init();
     } catch (err) {
-      this._setStatus('system-status', `Error: ${(err as Error).message || String(err)}`, true);
+      const formatted = formatCameraError(err);
+      this._setStatus('system-status', `Error: ${formatted.message}`, true);
+      this._setStatus('camera-status', formatted.message, true);
       this._disable();
       return;
     }
@@ -159,11 +171,11 @@ export class VisionRPSApp {
     this._setStatus('camera-status', 'Camera off', false);
   }
 
-  private _onCameraStatus(s: { type: string; label?: string; width?: number; height?: number; code?: string }): void {
+  private _onCameraStatus(s: { type: string; label?: string; width?: number; height?: number; code?: string; message?: string }): void {
     if (s.type === 'active') {
       this._setStatus('camera-status', `${s.label ?? 'Camera'} · ${s.width ?? '?'}×${s.height ?? '?'}`, false);
     } else if (s.type === 'error') {
-      this._setStatus('camera-status', `Camera error: ${s.code}`, true);
+      this._setStatus('camera-status', s.message || `Camera error: ${s.code}`, true);
     } else if (s.type === 'stopped') {
       this._setStatus('camera-status', 'Camera off', false);
     }
@@ -254,6 +266,7 @@ export class VisionRPSApp {
     const snap = this.scores.snapshot();
     this.dashboard.updateScores(snap);
     this.statisticsView.update(snap);
+    this.profileView.render(snap);
     this._set('dash-player', snap.playerWins);
     this._set('dash-computer', snap.computerWins);
     this._set('dash-draws', snap.draws);
