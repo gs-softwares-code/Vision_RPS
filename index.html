@@ -29,33 +29,33 @@
       </div>
 
       <nav class="nav" aria-label="Primary">
-        <button class="nav-item" data-nav="dashboard" type="button">
-          <span class="nav-icon" data-icon="dashboard"></span>
-          <span class="nav-label">Dashboard</span>
-        </button>
-        <button class="nav-item" data-nav="play" type="button">
+        <button class="nav-item active" data-nav="play" type="button">
           <span class="nav-icon" data-icon="play"></span>
           <span class="nav-label">Play</span>
         </button>
-        <button class="nav-item" data-nav="history" type="button">
-          <span class="nav-icon" data-icon="history"></span>
-          <span class="nav-label">History</span>
+        <button class="nav-item" data-nav="training" type="button">
+          <span class="nav-icon" data-icon="training"></span>
+          <span class="nav-label">Training</span>
+        </button>
+        <button class="nav-item" data-nav="dashboard" type="button">
+          <span class="nav-icon" data-icon="dashboard"></span>
+          <span class="nav-label">Dashboard</span>
         </button>
         <button class="nav-item" data-nav="statistics" type="button">
           <span class="nav-icon" data-icon="statistics"></span>
           <span class="nav-label">Statistics</span>
         </button>
-        <button class="nav-item" data-nav="profile" type="button">
-          <span class="nav-icon" data-icon="profile"></span>
-          <span class="nav-label">Profile</span>
+        <button class="nav-item" data-nav="history" type="button">
+          <span class="nav-icon" data-icon="history"></span>
+          <span class="nav-label">History</span>
         </button>
         <button class="nav-item" data-nav="achievements" type="button">
           <span class="nav-icon" data-icon="achievements"></span>
           <span class="nav-label">Achievements</span>
         </button>
-        <button class="nav-item" data-nav="training" type="button">
-          <span class="nav-icon" data-icon="training"></span>
-          <span class="nav-label">Training Lab</span>
+        <button class="nav-item" data-nav="profile" type="button">
+          <span class="nav-icon" data-icon="profile"></span>
+          <span class="nav-label">Profile</span>
         </button>
         <button class="nav-item" data-nav="settings" type="button">
           <span class="nav-icon" data-icon="settings"></span>
@@ -71,14 +71,18 @@
     <!-- ===================== MAIN ===================== -->
     <div class="main">
       <header class="topbar">
+        <div class="topbar-brand">
+          <span class="brand-mark"><img src="/icon.jpg" alt="Vision RPS logo" class="brand-img" /></span>
+          <span class="brand-title">Vision RPS</span>
+        </div>
         <div class="status-cluster">
           <div class="status chip"><span class="dot"></span><span id="system-status">Idle</span></div>
-          <div class="status chip"><span class="dot cam"></span><span id="camera-status">Camera off</span></div>
+          <div class="status chip cam-chip"><span class="dot cam"></span><span id="camera-status">Camera off</span></div>
           <div class="chip fps-chip" id="fps">0 fps</div>
         </div>
         <div class="topbar-actions">
           <button id="btn-pwa-install" class="btn pwa-install-btn hidden" type="button" aria-label="Install App" title="Install Vision RPS as App">
-            <span class="install-text">Install App</span>
+            <span class="install-text">Install</span>
           </button>
           <button id="btn-theme-toggle" class="btn theme-toggle-btn" type="button" aria-label="Toggle theme">
             <span class="theme-label">Light</span>

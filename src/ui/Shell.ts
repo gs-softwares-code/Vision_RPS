@@ -101,7 +101,12 @@ export class Shell {
       section.classList.toggle('active', id === view);
     });
     this.nav.forEach((btn, id) => {
-      btn.classList.toggle('active', id === view);
+      const active = id === view;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-current', active ? 'page' : 'false');
+      if (active) {
+        btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
     });
   }
 }
