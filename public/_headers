@@ -1,0 +1,17 @@
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+
+# Ensure WebAssembly MIME type is correctly handled
+/*.wasm
+  Content-Type: application/wasm
+  Cache-Control: public, max-age=31536000, immutable
+
+# Cache static model tasks
+/models/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Cache vendor scripts
+/vendor/*
+  Cache-Control: public, max-age=31536000, immutable

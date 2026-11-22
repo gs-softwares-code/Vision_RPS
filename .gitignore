@@ -1,0 +1,11 @@
+node_modules/
+dist/
+favicon.jpg
+test-results/
+playwright-report/
+blob-report/
+*.log
+.DS_Store
+
+# graft's local graph cache — regenerable, not committed (run `graft build`).
+/graft/

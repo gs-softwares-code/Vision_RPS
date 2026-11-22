@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Vision RPS — Rock Paper Scissors played with live hand gestures. Runs entirely in your browser." />
+  <meta name="theme-color" content="#f7f5f0" />
+  <title>Vision RPS</title>
+  <link rel="icon" type="image/jpeg" href="/favicon.jpg" />
+  <link rel="apple-touch-icon" href="/icon.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="app-shell">
+    <!-- ===================== SIDEBAR ===================== -->
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark"><img src="/icon.jpg" alt="Vision RPS logo" class="brand-img" /></span>
+        <div class="brand-text">
+          <h1>Vision RPS</h1>
+          <p class="tagline">Gesture · rock · paper · scissors</p>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="Primary">
+        <button class="nav-item" data-nav="dashboard" type="button">
+          <span class="nav-icon" data-icon="dashboard"></span>
+          <span class="nav-label">Dashboard</span>
+        </button>
+        <button class="nav-item" data-nav="play" type="button">
+          <span class="nav-icon" data-icon="play"></span>
+          <span class="nav-label">Play</span>
+        </button>
+        <button class="nav-item" data-nav="history" type="button">
+          <span class="nav-icon" data-icon="history"></span>
+          <span class="nav-label">History</span>
+        </button>
+        <button class="nav-item" data-nav="statistics" type="button">
+          <span class="nav-icon" data-icon="statistics"></span>
+          <span class="nav-label">Statistics</span>
+        </button>
+        <button class="nav-item" data-nav="profile" type="button">
+          <span class="nav-icon" data-icon="profile"></span>
+          <span class="nav-label">Profile</span>
+        </button>
+        <button class="nav-item" data-nav="achievements" type="button">
+          <span class="nav-icon" data-icon="achievements"></span>
+          <span class="nav-label">Achievements</span>
+        </button>
+        <button class="nav-item" data-nav="training" type="button">
+          <span class="nav-icon" data-icon="training"></span>
+          <span class="nav-label">Training Lab</span>
+        </button>
+        <button class="nav-item" data-nav="settings" type="button">
+          <span class="nav-icon" data-icon="settings"></span>
+          <span class="nav-label">Settings</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <p class="privacy-note">100% on-device. Camera frames never leave this browser.</p>
+      </div>
+    </aside>
+
+    <!-- ===================== MAIN ===================== -->
+    <div class="main">
+      <header class="topbar">
+        <div class="status-cluster">
+          <div class="status chip"><span class="dot"></span><span id="system-status">Idle</span></div>
+          <div class="status chip"><span class="dot cam"></span><span id="camera-status">Camera off</span></div>
+          <div class="chip fps-chip" id="fps">0 fps</div>
+        </div>
+        <div class="topbar-actions">
+          <button id="btn-theme-toggle" class="btn theme-toggle-btn" type="button" aria-label="Toggle theme">
+            <span class="theme-label">Light</span>
+          </button>
+        </div>
+      </header>
+
+      <main id="view-root" class="views">
+        <!-- ---------- DASHBOARD ---------- -->
+        <section class="view" data-view="dashboard">
+          <div class="hero glass">
+            <span class="hero-kicker">Vision RPS 2.0</span>
+            <h2>Welcome back, player.</h2>
+            <p>Shape a gesture, lock it in, and beat the machine — all on your device.</p>
+            <button id="cta-play" class="btn primary">▶ Go to Play</button>
+          </div>
+
+          <div class="dash-grid">
+            <section class="panel glass">
+              <h2>Season summary</h2>
+              <div class="score-grid">
+                <div class="score-cell" data-label="Player"><span id="dash-player" class="big">0</span></div>
+                <div class="score-cell" data-label="Computer"><span id="dash-computer" class="big">0</span></div>
+                <div class="score-cell" data-label="Draws"><span id="dash-draws" class="big">0</span></div>
+                <div class="score-cell" data-label="Rounds"><span id="dash-total" class="big">0</span></div>
+              </div>
+              <div class="winpct">
+                <span>Player win rate</span>
+                <strong id="dash-winpct">0%</strong>
+              </div>
+            </section>
+
+            <section class="panel glass">
+              <h2>How to play</h2>
+              <ul class="guide">
+                <li>
+                  <span class="giant">
+                    <svg class="gesture-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 11.5V9a2 2 0 0 0-2-2a2 2 0 0 0-2 2v1.4"></path><path d="M14 10V8a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"></path><path d="M10 9.9V9a2 2 0 0 0-2-2a2 2 0 0 0-2 2v5"></path><path d="M6 14a2 2 0 0 0-2-2a2 2 0 0 0-2 2"></path><path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-4a8 8 0 0 1-8-8 2 2 0 1 1 4 0"></path></svg>
+                  </span>
+                  <span>Rock — closed fist</span>
+                </li>
+                <li>
+                  <span class="giant">
+                    <svg class="gesture-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"></path><path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"></path><path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"></path><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"></path></svg>
+                  </span>
+                  <span>Paper — open palm</span>
+                </li>
+                <li>
+                  <span class="giant">
+                    <svg class="gesture-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="3"></circle><path d="M8.12 8.12 12 12"></path><path d="M20 4 8.12 15.88"></path><circle cx="6" cy="18" r="3"></circle><path d="M14.8 14.8 20 20"></path></svg>
+                  </span>
+                  <span>Scissors — index + middle</span>
+                </li>
+              </ul>
+              <p class="hint">Hold a gesture steady until it locks, then watch the countdown.</p>
+            </section>
+          </div>
+        </section>
+
+        <!-- ---------- PLAY ---------- -->
+        <section class="view" data-view="play">
+          <div class="play-layout">
+            <section class="playfield glass">
+              <div class="camera-frame" id="camera-frame">
+                <video id="webcam" autoplay muted playsinline></video>
+                <canvas id="overlay"></canvas>
+                <div class="countdown" id="countdown"></div>
+              </div>
+              <div class="rec-bar">
+                <div class="rec-item">
+                  <span class="rec-label">Gesture</span>
+                  <span class="rec-value" id="rec-gesture">—</span>
+                </div>
+                <div class="rec-item">
+                  <span class="rec-label">Confidence</span>
+                  <span class="rec-value" id="rec-confidence">—</span>
+                </div>
+                <div id="result-banner" class="result-banner"></div>
+              </div>
+              <div class="controls">
+                <button id="btn-enable" class="btn primary">▶ Enable camera</button>
+                <button id="btn-disable" class="btn" disabled>■ Stop</button>
+                <button id="btn-reset-stats" class="btn ghost">Reset stats</button>
+              </div>
+            </section>
+
+            <aside class="side">
+              <section class="panel glass">
+                <h2>Scoreboard</h2>
+                <div class="score-grid">
+                  <div class="score-cell" data-label="Player"><span id="stat-player" class="big">0</span></div>
+                  <div class="score-cell" data-label="Computer"><span id="stat-computer" class="big">0</span></div>
+                  <div class="score-cell" data-label="Draws"><span id="stat-draws" class="big">0</span></div>
+                  <div class="score-cell" data-label="Rounds"><span id="stat-total" class="big">0</span></div>
+                </div>
+                <div class="winpct">
+                  <span>Player win rate</span>
+                  <strong id="stat-winpct">0%</strong>
+                </div>
+                <div class="last-round">
+                  <span>Last round</span>
+                  <div class="last-moves">
+                    <span id="last-player">—</span>
+                    <span class="vs">vs</span>
+                    <span id="last-computer">—</span>
+                    <strong id="last-result"></strong>
+                  </div>
+                </div>
+              </section>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ---------- HISTORY ---------- -->
+        <section class="view" data-view="history">
+          <section class="panel glass fill">
+            <div class="view-head">
+              <h2>Match history</h2>
+              <button id="btn-clear-history" class="btn ghost">Clear</button>
+            </div>
+            <p class="hint" id="history-empty">No rounds yet this session. Play a few rounds on the Play tab.</p>
+            <ul id="history-list" class="history tall"></ul>
+          </section>
+        </section>
+
+        <!-- ---------- STATISTICS ---------- -->
+        <section class="view" data-view="statistics">
+          <div class="stat-layout">
+            <section class="panel glass">
+              <h2>Outcome mix</h2>
+              <div class="chart-wrap"><canvas id="stat-chart"></canvas></div>
+            </section>
+            <section class="panel glass">
+              <h2>Totals</h2>
+              <div class="stat-rows">
+                <div class="stat-row"><span>Rounds played</span><strong id="stat-total2">0</strong></div>
+                <div class="stat-row"><span>Wins</span><strong id="stat-wins">0</strong></div>
+                <div class="stat-row"><span>Losses</span><strong id="stat-losses">0</strong></div>
+                <div class="stat-row"><span>Draws</span><strong id="stat-draws2">0</strong></div>
+                <div class="stat-row"><span>Win rate</span><strong id="stat-winpct2">0%</strong></div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <!-- ---------- PROFILE ---------- -->
+        <section class="view" data-view="profile">
+          <section class="panel glass fill">
+            <div class="profile-card">
+              <div class="avatar">
+                <svg class="avatar-svg" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              </div>
+              <div class="profile-meta">
+                <h2 id="profile-name">Guest Player</h2>
+                <p class="hint" id="profile-level">Level 1 · 0 XP</p>
+              </div>
+            </div>
+            <div class="stat-rows">
+              <div class="stat-row"><span>Matches played</span><strong id="profile-matches">0</strong></div>
+              <div class="stat-row"><span>Rounds played</span><strong id="profile-rounds">0</strong></div>
+              <div class="stat-row"><span>Best streak</span><strong id="profile-streak">0</strong></div>
+              <div class="stat-row"><span>Favorite gesture</span><strong id="profile-gesture">—</strong></div>
+            </div>
+            <p class="hint">Profiles and persistence arrive with the match-history upgrade (Phase 3).</p>
+          </section>
+        </section>
+
+        <!-- ---------- ACHIEVEMENTS ---------- -->
+        <section class="view" data-view="achievements">
+          <section class="panel glass fill">
+            <div class="view-head">
+              <h2>Achievements</h2>
+            </div>
+            <p class="hint" id="ach-empty">No achievements available.</p>
+            <ul id="ach-list" class="ach-list"></ul>
+          </section>
+        </section>
+
+        <!-- ---------- TRAINING LAB ---------- -->
+        <section class="view" data-view="training">
+          <section class="panel glass fill">
+            <h2>Training Lab</h2>
+            <p class="hint">Master the three gestures before entering a real match.</p>
+            <ul class="guide">
+              <li>
+                <span class="giant">
+                  <svg class="gesture-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 11.5V9a2 2 0 0 0-2-2a2 2 0 0 0-2 2v1.4"></path><path d="M14 10V8a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"></path><path d="M10 9.9V9a2 2 0 0 0-2-2a2 2 0 0 0-2 2v5"></path><path d="M6 14a2 2 0 0 0-2-2a2 2 0 0 0-2 2"></path><path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-4a8 8 0 0 1-8-8 2 2 0 1 1 4 0"></path></svg>
+                </span>
+                <span>Rock — a closed fist. Beats scissors.</span>
+              </li>
+              <li>
+                <span class="giant">
+                  <svg class="gesture-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"></path><path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"></path><path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"></path><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"></path></svg>
+                </span>
+                <span>Paper — a flat, open palm. Beats rock.</span>
+              </li>
+              <li>
+                <span class="giant">
+                  <svg class="gesture-svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="3"></circle><path d="M8.12 8.12 12 12"></path><path d="M20 4 8.12 15.88"></path><circle cx="6" cy="18" r="3"></circle><path d="M14.8 14.8 20 20"></path></svg>
+                </span>
+                <span>Scissors — index + middle extended. Beats paper.</span>
+              </li>
+            </ul>
+            <div class="training-tip glass-inner">
+              <strong>Pro tip</strong>
+              <p>Keep your hand fully in the camera frame, palm facing the lens, with good light. Hold the pose still for a moment to lock it in.</p>
+            </div>
+          </section>
+        </section>
+
+        <!-- ---------- SETTINGS ---------- -->
+        <section class="view" data-view="settings">
+          <section class="panel glass fill">
+            <h2>Settings</h2>
+            <label class="setting">
+              <span>Detection confidence</span>
+              <div class="range-row">
+                <input type="range" id="conf-confidence" min="40" max="90" step="5" />
+                <output id="conf-confidence-out"></output>
+              </div>
+            </label>
+            <label class="setting">
+              <span>Stability frames</span>
+              <div class="range-row">
+                <input type="range" id="conf-stability" min="2" max="8" step="1" />
+                <output id="conf-stability-out"></output>
+              </div>
+            </label>
+            <label class="setting switch">
+              <span>Sound effects</span>
+              <input type="checkbox" id="conf-sound" />
+            </label>
+            <label class="setting switch">
+              <span>Hand visualization</span>
+              <input type="checkbox" id="conf-visualize" />
+            </label>
+            <label class="setting">
+              <span>Camera</span>
+              <select id="conf-camera"></select>
+            </label>
+          </section>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
