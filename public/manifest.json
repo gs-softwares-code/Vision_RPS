@@ -1,0 +1,44 @@
+{
+  "name": "Vision RPS — Clay Gesture Edition",
+  "short_name": "Vision RPS",
+  "description": "Rock Paper Scissors played with live hand gestures. Runs entirely on your device with tactile claymorphic design.",
+  "start_url": "/",
+  "id": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#faf7f2",
+  "theme_color": "#faf7f2",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Play Game",
+      "url": "/?view=play",
+      "description": "Jump straight into gesture play"
+    },
+    {
+      "name": "Training Lab",
+      "url": "/?view=training",
+      "description": "Practice rock, paper, and scissors poses"
+    }
+  ]
+}

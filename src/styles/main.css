@@ -340,6 +340,36 @@ html.cam-ready .dot.cam,
   gap: 10px;
 }
 
+.pwa-install-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #ffffff;
+  box-shadow: var(--clay-btn);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.pwa-install-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--clay-card);
+}
+
+.pwa-install-btn:active {
+  transform: translateY(1px);
+  box-shadow: var(--clay-btn-active);
+}
+
+.hidden {
+  display: none !important;
+}
+
 .theme-toggle-btn {
   display: inline-flex;
   align-items: center;
