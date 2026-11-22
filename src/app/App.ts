@@ -131,12 +131,20 @@ export class VisionRPSApp {
 
     try {
       await this.camera.start();
-      await this.vision.init();
     } catch (err) {
       const formatted = formatCameraError(err);
-      this._setStatus('system-status', `Error: ${formatted.message}`, true);
-      this._setStatus('camera-status', formatted.message, true);
-      this._disable();
+      this._setStatus('system-status', `Camera: ${formatted.message}`, true);
+      this._disable(formatted.message);
+      return;
+    }
+
+    try {
+      await this.vision.init();
+    } catch (err) {
+      const raw = err instanceof Error ? err.message : String(err);
+      const cleanMsg = raw.includes('[object') ? 'Failed to load gesture recognition model.' : raw;
+      this._setStatus('system-status', `Vision error: ${cleanMsg}`, true);
+      this._disable(`Vision error: ${cleanMsg}`);
       return;
     }
 
@@ -156,7 +164,7 @@ export class VisionRPSApp {
     this._setStatus('system-status', 'System ready', false);
   }
 
-  private _disable(): void {
+  private _disable(errorMessage?: string): void {
     this.running = false;
     this.processor?.stop();
     this.processor = null;
@@ -168,16 +176,24 @@ export class VisionRPSApp {
 
     ($('btn-enable') as HTMLButtonElement).disabled = false;
     ($('btn-disable') as HTMLButtonElement).disabled = true;
-    this._setStatus('camera-status', 'Camera off', false);
+    if (errorMessage) {
+      this._setStatus('camera-status', errorMessage, true);
+    } else {
+      this._setStatus('camera-status', 'Camera off', false);
+    }
   }
 
   private _onCameraStatus(s: { type: string; label?: string; width?: number; height?: number; code?: string; message?: string }): void {
     if (s.type === 'active') {
       this._setStatus('camera-status', `${s.label ?? 'Camera'} · ${s.width ?? '?'}×${s.height ?? '?'}`, false);
     } else if (s.type === 'error') {
-      this._setStatus('camera-status', s.message || `Camera error: ${s.code}`, true);
+      const msg = s.message || (s.code && s.code !== 'Object' ? `Camera error: ${s.code}` : 'Camera permission or device error');
+      this._setStatus('camera-status', msg, true);
     } else if (s.type === 'stopped') {
-      this._setStatus('camera-status', 'Camera off', false);
+      const el = $('camera-status');
+      if (!el?.classList.contains('error')) {
+        this._setStatus('camera-status', 'Camera off', false);
+      }
     }
   }
 

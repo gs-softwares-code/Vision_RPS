@@ -1,5 +1,6 @@
 /**
- * ProfileView.ts — interactive, editable player profile with persistence and statistics.
+ * ProfileView.ts — interactive, editable player profile with persistence, statistics,
+ * and custom avatar upload support.
  */
 
 import { LocalStorage } from '../storage/LocalStorage';
@@ -9,7 +10,7 @@ import type { ScoreSnapshot } from '../game/ScoreManager';
 export interface PlayerProfile {
   name: string;
   title: string;
-  avatar: string; // 'mascot' | 'rock' | 'paper' | 'scissors' | 'trophy' | 'star'
+  avatar: string; // 'mascot' | 'rock' | 'paper' | 'scissors' | 'trophy' | 'star' | data:image/...
   bio: string;
 }
 
@@ -30,6 +31,13 @@ const AVATAR_SVGS: Record<string, string> = {
   trophy: '<svg class="avatar-svg" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path></svg>',
   star: '<svg class="avatar-svg" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>',
 };
+
+function renderAvatarHtml(avatar: string): string {
+  if (avatar && (avatar.startsWith('data:image/') || avatar.startsWith('blob:') || avatar.startsWith('http'))) {
+    return `<img src="${avatar}" alt="Custom Profile Photo" class="profile-avatar-img custom-avatar-img" />`;
+  }
+  return AVATAR_SVGS[avatar] || AVATAR_SVGS.mascot;
+}
 
 export class ProfileView {
   private storage: LocalStorage;
@@ -93,7 +101,7 @@ export class ProfileView {
 
     const avatarContainer = document.getElementById('profile-avatar-display');
     if (avatarContainer) {
-      avatarContainer.innerHTML = AVATAR_SVGS[this.profile.avatar] || AVATAR_SVGS.mascot;
+      avatarContainer.innerHTML = renderAvatarHtml(this.profile.avatar);
     }
 
     // 2. Progression & XP Calculation
@@ -172,10 +180,12 @@ export class ProfileView {
       (document.getElementById('input-profile-name') as HTMLInputElement).value = DEFAULT_PROFILE.name;
       (document.getElementById('select-profile-title') as HTMLSelectElement).value = DEFAULT_PROFILE.title;
       (document.getElementById('input-profile-bio') as HTMLTextAreaElement).value = DEFAULT_PROFILE.bio;
+      const fileInput = document.getElementById('input-profile-custom-image') as HTMLInputElement | null;
+      if (fileInput) fileInput.value = '';
       this._updateAvatarPickerActive();
     });
 
-    // Avatar picker buttons
+    // Preset Avatar picker buttons
     document.querySelectorAll<HTMLButtonElement>('[data-avatar-choice]').forEach((btn) => {
       btn.addEventListener('click', () => {
         const choice = btn.dataset.avatarChoice;
@@ -184,6 +194,48 @@ export class ProfileView {
           this._updateAvatarPickerActive();
         }
       });
+    });
+
+    // Custom photo file input and upload button
+    const uploadBtn = document.getElementById('btn-upload-custom-avatar');
+    const fileInput = document.getElementById('input-profile-custom-image') as HTMLInputElement | null;
+
+    uploadBtn?.addEventListener('click', () => {
+      fileInput?.click();
+    });
+
+    fileInput?.addEventListener('change', (e) => {
+      const target = e.target as HTMLInputElement;
+      const file = target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (loadEvt) => {
+        const dataUrl = loadEvt.target?.result as string;
+        if (!dataUrl) return;
+
+        // Process and compress image through canvas (256x256, JPEG 0.85)
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = 256;
+          canvas.height = 256;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            // Center crop with cover aspect ratio
+            const scale = Math.max(256 / img.width, 256 / img.height);
+            const x = (256 - img.width * scale) / 2;
+            const y = (256 - img.height * scale) / 2;
+            ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+
+            const compressedUrl = canvas.toDataURL('image/jpeg', 0.85);
+            this.selectedAvatar = compressedUrl;
+            this._updateAvatarPickerActive();
+          }
+        };
+        img.src = dataUrl;
+      };
+      reader.readAsDataURL(file);
     });
   }
 
@@ -201,11 +253,29 @@ export class ProfileView {
   }
 
   private _updateAvatarPickerActive(): void {
+    const isCustom = this.selectedAvatar.startsWith('data:image/') || this.selectedAvatar.startsWith('blob:');
+
     document.querySelectorAll<HTMLButtonElement>('[data-avatar-choice]').forEach((btn) => {
-      const isSelected = btn.dataset.avatarChoice === this.selectedAvatar;
+      const isSelected = !isCustom && btn.dataset.avatarChoice === this.selectedAvatar;
       btn.classList.toggle('active', isSelected);
       btn.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
     });
+
+    const uploadBtn = document.getElementById('btn-upload-custom-avatar');
+    const preview = document.getElementById('custom-avatar-preview');
+
+    if (uploadBtn) {
+      uploadBtn.classList.toggle('active', isCustom);
+      uploadBtn.setAttribute('aria-pressed', isCustom ? 'true' : 'false');
+    }
+
+    if (preview) {
+      if (isCustom) {
+        preview.innerHTML = `<img src="${this.selectedAvatar}" alt="Custom Preview" class="custom-avatar-thumb" />`;
+      } else {
+        preview.innerHTML = `<svg class="nav-svg" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>`;
+      }
+    }
   }
 
   private _handleSave(): void {

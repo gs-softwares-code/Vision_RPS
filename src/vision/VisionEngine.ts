@@ -50,11 +50,12 @@ function toAbsolute(p: string): string {
 }
 
 async function resolveModelUrl(): Promise<string> {
+  const localAbs = toAbsolute(LOCAL_MODEL);
   try {
-    const res = await fetch(LOCAL_MODEL, { method: 'HEAD' });
-    if (res.ok) return LOCAL_MODEL;
+    const res = await fetch(localAbs);
+    if (res.ok) return localAbs;
   } catch {
-    /* ignore */
+    /* fallback to CDN */
   }
   return DEFAULT_MODEL_CDN;
 }

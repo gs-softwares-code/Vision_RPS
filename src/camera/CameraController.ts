@@ -31,53 +31,65 @@ export interface CameraControllerOptions {
 }
 
 export function formatCameraError(err: unknown): { name: string; message: string } {
-  if (!err) return { name: 'UnknownError', message: 'Unknown camera error.' };
-  if (err instanceof DOMException || err instanceof Error) {
-    const name = err.name || 'CameraError';
-    if (/NotAllowedError|PermissionDeniedError/i.test(name)) {
-      return {
-        name,
-        message: 'Camera permission denied. Please allow camera access in browser/app settings.',
-      };
-    }
-    if (/NotFoundError|DevicesNotFoundError/i.test(name)) {
-      return {
-        name,
-        message: 'No camera found. Please connect or enable a camera device.',
-      };
-    }
-    if (/NotReadableError|TrackStartError/i.test(name)) {
-      return {
-        name,
-        message: 'Camera is busy or in use by another app. Please close other camera apps.',
-      };
-    }
-    if (/OverconstrainedError/i.test(name)) {
-      return {
-        name,
-        message: 'Camera constraints not supported by this device.',
-      };
-    }
-    if (/SecurityError/i.test(name)) {
-      return {
-        name,
-        message: 'Camera requires a secure context (HTTPS or localhost).',
-      };
-    }
-    const msg = err.message && !err.message.includes('[object') ? err.message : name;
-    return { name, message: msg };
-  }
-  if (typeof err === 'object') {
+  if (!err) return { name: 'UnknownError', message: 'Camera access failed. Please ensure camera permissions are granted.' };
+
+  let name = 'CameraError';
+  let message = '';
+
+  if (typeof err === 'string') {
+    message = err;
+  } else if (err instanceof DOMException || err instanceof Error) {
+    name = err.name || 'CameraError';
+    message = err.message || '';
+  } else if (typeof err === 'object') {
     const rec = err as Record<string, unknown>;
-    const name = typeof rec.name === 'string' ? rec.name : 'CameraError';
-    const msg = typeof rec.message === 'string' && rec.message && !rec.message.includes('[object') ? rec.message : name;
-    return { name, message: msg };
+    if (typeof rec.name === 'string') name = rec.name;
+    if (typeof rec.message === 'string') message = rec.message;
+    else if (typeof rec.error === 'string') message = rec.error;
+    else if (typeof rec.reason === 'string') message = rec.reason;
   }
-  const str = String(err);
-  return {
-    name: 'CameraError',
-    message: str.includes('[object') ? 'Camera access failed (Permission or device unavailable).' : str,
-  };
+
+  if (!name || name === 'Object' || name === '[object Object]') {
+    name = 'CameraError';
+  }
+
+  // Normalize common WebRTC camera errors
+  if (/NotAllowedError|PermissionDeniedError/i.test(name) || /permission/i.test(message)) {
+    return {
+      name: 'PermissionDenied',
+      message: 'Camera permission denied. Please allow camera access in browser or app settings.',
+    };
+  }
+  if (/NotFoundError|DevicesNotFoundError/i.test(name) || (/device/i.test(message) && /found|missing/i.test(message))) {
+    return {
+      name: 'DeviceNotFound',
+      message: 'No camera found. Please connect or enable a camera device.',
+    };
+  }
+  if (/NotReadableError|TrackStartError/i.test(name) || /busy|in use|hardware/i.test(message)) {
+    return {
+      name: 'DeviceBusy',
+      message: 'Camera is busy or in use by another app. Please close other camera apps.',
+    };
+  }
+  if (/OverconstrainedError/i.test(name) || /constraint/i.test(message)) {
+    return {
+      name: 'ConstraintError',
+      message: 'Camera resolution or framerate not supported by this device.',
+    };
+  }
+  if (/SecurityError/i.test(name) || /secure context/i.test(message)) {
+    return {
+      name: 'SecurityError',
+      message: 'Camera requires a secure context (HTTPS or localhost).',
+    };
+  }
+
+  if (!message || message.includes('[object') || message === 'CameraError' || message === 'Error') {
+    message = 'Camera initialization failed. Please verify permissions and try again.';
+  }
+
+  return { name, message };
 }
 
 export class CameraController {

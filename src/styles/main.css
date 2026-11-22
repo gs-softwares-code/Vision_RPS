@@ -841,6 +841,38 @@ html.cam-ready .dot.cam,
   transform: scale(1.08);
 }
 
+.avatar-choice-btn.custom-choice {
+  border-style: dashed;
+}
+
+.avatar-choice-btn.custom-choice.active {
+  border-style: solid;
+}
+
+.custom-avatar-preview {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.custom-avatar-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.custom-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
 .form-actions {
   display: flex;
   align-items: center;
