@@ -12,6 +12,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "e2e": "playwright test",
+    "cap:sync": "npx cap sync",
+    "build:apk": "npm run build && npx cap sync android && cd android && ./gradlew assembleDebug",
     "serve": "python -m http.server 8000 --directory ."
   },
   "keywords": [
@@ -23,6 +25,7 @@
   ],
   "license": "MIT",
   "devDependencies": {
+    "@capacitor/cli": "^8.6.2",
     "@playwright/test": "^1.65.1",
     "@types/node": "^26.6.6",
     "typescript": "^7.0.2",
@@ -30,6 +33,8 @@
     "vitest": "^5.1.1"
   },
   "dependencies": {
+    "@capacitor/android": "^8.6.2",
+    "@capacitor/core": "^8.6.2",
     "chart.js": "^4.6.1",
     "dexie": "^4.4.7",
     "lucide": "^1.77.0"
